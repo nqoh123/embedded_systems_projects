@@ -1,0 +1,67 @@
+#include <REG51.H>
+
+// Define switches on Port 2
+sbit SW1 = P2^0;   // Switch 1 on P2.0
+sbit SW2 = P2^1;   // Switch 2 on P2.1
+sbit SW3 = P2^2;   // Switch 3 on P2.2
+sbit SW4 = P2^3;   // Switch 4 on P2.3
+
+void delay(unsigned int time) {
+    unsigned int i, j;
+    for(i=0; i<time; i++)
+        for(j=0; j<1275; j++);   // Rough delay
+}
+
+void main() {
+    unsigned char pattern;
+    
+    while(1) {
+        // === Switch 1: All LEDs blink together ===
+        if(SW1 == 0) {  
+            while(SW1 == 0) {   // Keep running while switch pressed
+                P1 = 0xFF;      // All LEDs ON
+                delay(500);
+                P1 = 0x00;      // All LEDs OFF
+                delay(500);
+            }
+        }
+        
+        // === Switch 2: LEDs forward sequence ===
+        else if(SW2 == 0) {    
+            while(SW2 == 0) {
+                for(pattern=0x01; pattern!=0; pattern <<= 1) {
+                    P1 = pattern;
+                    delay(400);
+                }
+            }
+        }
+        
+        // === Switch 3: LEDs reverse sequence ===
+        else if(SW3 == 0) {    
+            while(SW3 == 0) {
+                for(pattern=0x80; pattern!=0; pattern >>= 1) {
+                    P1 = pattern;
+                    delay(400);
+                }
+            }
+        }
+        
+        // === Switch 4: Two LEDs blink synchronously ===
+        else if(SW4 == 0) {    
+            while(SW4 == 0) {
+                P1 = 0x81;   // LED1 + LED8
+                delay(400);
+                P1 = 0x42;   // LED2 + LED7
+                delay(400);
+                P1 = 0x24;   // LED3 + LED6
+                delay(400);
+                P1 = 0x18;   // LED4 + LED5
+                delay(400);
+            }
+        }
+        
+        else {
+            P1 = 0x00;   // Default OFF
+        }
+    }
+}
